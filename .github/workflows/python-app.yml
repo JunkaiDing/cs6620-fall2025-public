@@ -1,41 +1,26 @@
-name: Python application
+from flask import Flask
+from datetime import datetime
 
-on:
-  push:
-    branches: [ "week02" ]
-  pull_request:
-    branches: [ "week02" ]
+app = Flask(__name__)
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+@app.route('/')
+def hello():
+    return f'''
+    <h1>Hello from Automated CI/CD Pipeline!</h1>
+    <p><strong>Version:</strong> 2.0 - Automated Deployment</p>
+    <p><strong>Deployed via:</strong> GitHub Actions + AWS SSM</p>
+    <p><strong>Build Date:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+    <p><strong>Assignment:</strong> Automated EC2 Deployment</p>
+    '''
 
-    steps:
-    - uses: actions/checkout@v4
+@app.route('/health')
+def health():
+    return {
+        'status': 'healthy',
+        'version': '2.0',
+        'deployment_method': 'automated',
+        'timestamp': datetime.now().isoformat()
+    }
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-
-    - name: Install system dependencies (SDL)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsdl1.2-dev
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 .
-      continue-on-error: true
-
-    - name: Test with pytest
-      run: |
-        pip install pytest
-        pytest
-      continue-on-error: true
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
